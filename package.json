@@ -1,0 +1,14 @@
+{
+  "name": "tobus-gtt-proxy",
+  "version": "1.0.0",
+  "description": "Proxy GTT Realtime per ToBus",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "gtfs-realtime-bindings": "^1.1.1"
+  }
+}
