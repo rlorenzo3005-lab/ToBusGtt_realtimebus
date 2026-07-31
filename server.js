@@ -56,9 +56,12 @@ app.get('/api/orari', async (req, res) => {
 });
 
 // Port dinamica per Render o 3000 in locale 🚀
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
-    console.log(`🥷 Proxy Ninja in ascolto sulla porta ${PORT}`);
+console.log("\n--- IN LOCALE ---");
     console.log(`👉 Posizione Veicoli: http://localhost:${PORT}/api/veicoli`);
     console.log(`👉 Orari e Previsioni: http://localhost:${PORT}/api/orari`);
+    console.log("\n--- SU RENDER ---");
+    console.log(`👉 Posizione Veicoli: https://tobusgtt-realtimebus.onrender.com/api/veicoli`);
+    console.log(`👉 Orari e Previsioni: https://tobusgtt-realtimebus.onrender.com/api/orari`);
 });
