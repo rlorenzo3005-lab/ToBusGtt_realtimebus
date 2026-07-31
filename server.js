@@ -4,38 +4,61 @@ const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
 
 const app = express();
 
-// Permette alla tua mappa HTML di fare richieste a questo server senza essere bloccata 🛡️
+// Permette alla tua mappa/app HTML di fare richieste a questo server senza essere bloccata 🛡️
 app.use(cors());
 
-// L'URL magico che hai appena trovato! 🎯
-const GTT_URL = "https://percorsieorari.gtt.to.it/das_gtfsrt/vehicle_position.aspx";
+// 🎯 URL per la posizione in tempo reale dei veicoli
+const GTT_VEHICLE_POSITIONS_URL = "https://percorsieorari.gtt.to.it/das_gtfsrt/vehicle_position.aspx";
 
+// ⏱️ URL per gli aggiornamenti sui viaggi (orari di arrivo e ritardi)
+const GTT_TRIP_UPDATES_URL = "https://percorsieorari.gtt.to.it/das_gtfsrt/trip_update.aspx";
+
+// 📍 Endpoint 1: Posizione dei Veicoli
 app.get('/api/veicoli', async (req, res) => {
     try {
-        console.log("📡 Richiesta dati a GTT in corso...");
+        console.log("📡 Richiesta posizioni veicoli a GTT...");
         
-        // Scarichiamo i dati binari
-        const response = await fetch(GTT_URL);
+        const response = await fetch(GTT_VEHICLE_POSITIONS_URL);
         if (!response.ok) {
             throw new Error(`Errore HTTP GTT: ${response.status}`);
         }
         
         const buffer = await response.arrayBuffer();
-        
-        // La magia: decodifichiamo il Protobuf in un oggetto JavaScript leggibile 🪄✨
         const feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(new Uint8Array(buffer));
         
-        // Inviamo il JSON pulito alla tua mappa! 📦
         res.json(feed);
         
     } catch (error) {
-        console.error("❌ Errore:", error);
-        res.status(500).json({ errore: "Impossibile decodificare i dati GTT" });
+        console.error("❌ Errore veicoli:", error);
+        res.status(500).json({ errore: "Impossibile decodificare le posizioni dei veicoli" });
     }
 });
 
-// Avviamo il server sulla porta 3000 🚀
-app.listen(3000, () => {
-    console.log("🥷 Proxy Ninja in ascolto su http://localhost:3000");
-    console.log("👉 I bus sono visibili su: http://localhost:3000/api/veicoli");
+// ⏱️ Endpoint 2: Orari e Previsioni Arrivi
+app.get('/api/orari', async (req, res) => {
+    try {
+        console.log("📡 Richiesta orari e trip updates a GTT...");
+        
+        const response = await fetch(GTT_TRIP_UPDATES_URL);
+        if (!response.ok) {
+            throw new Error(`Errore HTTP GTT: ${response.status}`);
+        }
+        
+        const buffer = await response.arrayBuffer();
+        const feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(new Uint8Array(buffer));
+        
+        res.json(feed);
+        
+    } catch (error) {
+        console.error("❌ Errore orari:", error);
+        res.status(500).json({ errore: "Impossibile decodificare le stime degli orari" });
+    }
+});
+
+// Port dinamica per Render o 3000 in locale 🚀
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🥷 Proxy Ninja in ascolto sulla porta ${PORT}`);
+    console.log(`👉 Posizione Veicoli: http://localhost:${PORT}/api/veicoli`);
+    console.log(`👉 Orari e Previsioni: http://localhost:${PORT}/api/orari`);
 });
