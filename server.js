@@ -7,6 +7,15 @@ const app = express();
 // Permette alla tua mappa/app HTML di fare richieste a questo server senza essere bloccata 🛡️
 app.use(cors());
 
+// 🚫 Blocco Cache Universale: impedisce a Render e ai browser di salvare i vecchi dati
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Surrogate-Control', 'no-store'); // Istruzione specifica per infrastrutture cloud come Render
+    next();
+});
+
 // 🎯 URL per la posizione in tempo reale dei veicoli
 const GTT_VEHICLE_POSITIONS_URL = "https://percorsieorari.gtt.to.it/das_gtfsrt/vehicle_position.aspx";
 
